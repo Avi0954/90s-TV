@@ -1,10 +1,6 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import {
-    categories as initialCategories,
-    cartoons as initialCartoons,
-    mainChannels as initialMainChannels,
-    optionalChannels as initialOptionalChannels
-} from '../data/cartoonsData';
+/* eslint-disable react-refresh/only-export-components */
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import * as storage from '../services/storageService';
 
 const NostalgiaContext = createContext();
 
@@ -18,6 +14,26 @@ export const NostalgiaProvider = ({ children }) => {
 
     // sessionIntroPassed: Has the user entered/skipped the intro in THIS browser session? (Ephemeral)
     const [sessionIntroPassed, setSessionIntroPassed] = useState(false);
+
+    // Watchlist state
+    const [watchlist, setWatchlist] = useState(() => storage.getWatchlist());
+
+    const toggleWatchlist = useCallback((slug) => {
+        if (!slug) return;
+        setWatchlist((prev) => {
+            if (prev.includes(slug)) {
+                storage.removeFromWatchlist(slug);
+                return prev.filter((item) => item !== slug);
+            } else {
+                storage.addToWatchlist(slug);
+                return [slug, ...prev];
+            }
+        });
+    }, []);
+
+    const isWatchlisted = useCallback((slug) => {
+        return watchlist.includes(slug);
+    }, [watchlist]);
 
     // Admin persistence
     const [isAdmin, setIsAdmin] = useState(() => {
@@ -66,10 +82,8 @@ export const NostalgiaProvider = ({ children }) => {
         localStorage.removeItem('introSeen');
     };
 
-    const addToRecentlyWatched = (showId) => {
-        const watchedIds = JSON.parse(localStorage.getItem('recentlyWatchedCartoons') || '[]');
-        const updatedIds = [showId, ...watchedIds.filter(id => id !== showId)].slice(0, 10);
-        localStorage.setItem('recentlyWatchedCartoons', JSON.stringify(updatedIds));
+    const addToRecentlyWatched = (showSlug) => {
+        storage.saveWatchProgress(showSlug, 0, 1320);
     };
 
     return (
@@ -84,7 +98,14 @@ export const NostalgiaProvider = ({ children }) => {
             logoutAdmin,
             theme,
             toggleTheme,
-            addToRecentlyWatched
+            addToRecentlyWatched,
+            watchlist,
+            toggleWatchlist,
+            isWatchlisted,
+            saveWatchProgress: storage.saveWatchProgress,
+            getShowProgress: storage.getShowProgress,
+            getContinueWatchingSlugs: storage.getContinueWatchingSlugs,
+            getRecentlyWatchedSlugs: storage.getRecentlyWatchedSlugs
         }}>
             {children}
         </NostalgiaContext.Provider>

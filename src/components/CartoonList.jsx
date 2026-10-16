@@ -73,7 +73,7 @@ const CartoonList = () => {
             <div className="editorial-channel-page error-container">
                 <header className="editorial-hero-section">
                     <div className="editorial-hero-content">
-                        <Link to="/dashboard" className="editorial-back-link">
+                        <Link to="/" className="editorial-back-link">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="16" height="16">
                                 <line x1="19" y1="12" x2="5" y2="12"></line>
                                 <polyline points="12 19 5 12 12 5"></polyline>
@@ -123,7 +123,7 @@ const CartoonList = () => {
             {/* 1. Minimal Header (Max 320px) */}
             <header className="editorial-hero-section">
                 <div className="editorial-hero-content">
-                    <Link to="/dashboard" className="editorial-back-link">
+                    <Link to="/" className="editorial-back-link">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="16" height="16">
                             <line x1="19" y1="12" x2="5" y2="12"></line>
                             <polyline points="12 19 5 12 12 5"></polyline>

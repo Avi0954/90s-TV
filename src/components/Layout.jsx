@@ -31,9 +31,26 @@ const Layout = ({ children }) => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedQuery, setDebouncedQuery] = useState("");
+  const [isSearching, setIsSearching] = useState(false);
   const [allShows, setAllShows] = useState([]);
   const [channels, setChannels] = useState([]);
   const searchRef = React.useRef(null);
+
+  // Debounce search input (200ms) to avoid unnecessary recalculations
+  useEffect(() => {
+    const trimmed = searchQuery.trim();
+    if (!trimmed) {
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      setDebouncedQuery(trimmed);
+      setIsSearching(false);
+    }, 200);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
 
   useEffect(() => {
     if (retroMode) {
@@ -116,46 +133,40 @@ const Layout = ({ children }) => {
     }
   };
 
+  const q = debouncedQuery.toLowerCase();
+
   const filteredShows =
-    searchQuery.length > 0
+    q.length > 0
       ? allShows
         .filter((s) =>
-          s.title.toLowerCase().includes(searchQuery.toLowerCase()),
+          (s.title && s.title.toLowerCase().includes(q)) ||
+          (s.franchise && s.franchise.toLowerCase().includes(q)) ||
+          (s.genre && s.genre.toLowerCase().includes(q)) ||
+          (s.description && s.description.toLowerCase().includes(q))
         )
         .slice(0, 8)
       : [];
 
   const filteredChannels =
-    searchQuery.length > 0
+    q.length > 0
       ? channels.filter((c) =>
-        c.name.toLowerCase().includes(searchQuery.toLowerCase()),
-      )
+        (c.name && c.name.toLowerCase().includes(q)) ||
+        (c.slug && c.slug.toLowerCase().includes(q)) ||
+        (c.description && c.description.toLowerCase().includes(q))
+      ).slice(0, 4)
       : [];
 
   const matchedFranchises =
-    searchQuery.length > 0
+    q.length > 0
       ? [...new Set(allShows.map((s) => s.franchise).filter(Boolean))]
-        .filter((f) => f.toLowerCase().includes(searchQuery.toLowerCase()))
+        .filter((f) => f.toLowerCase().includes(q))
         .slice(0, 4)
       : [];
 
-  const matchedCharacters =
-    searchQuery.length > 0
-      ? allShows
-        .filter(
-          (s) =>
-            s.characters &&
-            Array.isArray(s.characters) &&
-            s.characters.some((c) =>
-              c.toLowerCase().includes(searchQuery.toLowerCase()),
-            ),
-        )
-        .map((s) => ({
-          show: s.title,
-          name: s.characters.find((c) =>
-            c.toLowerCase().includes(searchQuery.toLowerCase()),
-          ),
-        }))
+  const matchedGenres =
+    q.length > 0
+      ? [...new Set(allShows.map((s) => s.genre).filter(Boolean))]
+        .filter((g) => g.toLowerCase().includes(q))
         .slice(0, 4)
       : [];
 
@@ -230,47 +241,39 @@ const Layout = ({ children }) => {
                 placeholder="Search cartoons, characters, channels..."
                 value={searchQuery}
                 onChange={(e) => {
-                  setSearchQuery(e.target.value);
+                  const val = e.target.value;
+                  setSearchQuery(val);
                   setIsSearchOpen(true);
+                  if (val.trim()) {
+                    setIsSearching(true);
+                  } else {
+                    setDebouncedQuery("");
+                    setIsSearching(false);
+                  }
                 }}
               />
             </div>
 
             {isSearchOpen && searchQuery.length > 0 && (
               <div className="search-results-dropdown">
-                {filteredShows.length === 0 &&
+                {isSearching && (
+                  <div className="search-status" style={{ padding: "1rem", color: "var(--text-muted)" }}>
+                    Tuning signal frequency...
+                  </div>
+                )}
+
+                {!isSearching &&
+                  filteredShows.length === 0 &&
                   filteredChannels.length === 0 &&
                   matchedFranchises.length === 0 &&
-                  matchedCharacters.length === 0 && (
+                  matchedGenres.length === 0 && (
                     <div
                       className="no-results"
                       style={{ padding: "1rem", color: "var(--text-muted)" }}
                     >
-                      No signals found for "{searchQuery}"
+                      No signals found for "{debouncedQuery || searchQuery}"
                     </div>
                   )}
-
-                {matchedCharacters.length > 0 && (
-                  <div className="search-section">
-                    <div className="search-section-label">Characters</div>
-                    {matchedCharacters.map((c, idx) => (
-                      <div
-                        key={idx}
-                        className="search-result-item"
-                        onClick={() => {
-                          setIsSearchOpen(false);
-                          setSearchQuery("");
-                          setIsMenuOpen(false);
-                        }}
-                      >
-                        <div className="result-info">
-                          <span className="result-title">{c.name}</span>
-                          <span className="result-meta">from {c.show}</span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
 
                 {matchedFranchises.length > 0 && (
                   <div className="search-section">
@@ -287,12 +290,30 @@ const Layout = ({ children }) => {
                         }}
                       >
                         <div className="result-info">
-                          <span className="result-title">{f} Hub</span>
-                          <span className="result-meta">
-                            Complete Series Collection
-                          </span>
+                          <span className="result-title">{f} Series</span>
+                          <span className="result-meta">Complete Franchise Collection</span>
                         </div>
                       </Link>
+                    ))}
+                  </div>
+                )}
+
+                {matchedGenres.length > 0 && (
+                  <div className="search-section">
+                    <div className="search-section-label">Genre</div>
+                    {matchedGenres.map((g) => (
+                      <div
+                        key={g}
+                        className="search-result-item"
+                        onClick={() => {
+                          setSearchQuery(g);
+                        }}
+                      >
+                        <div className="result-info">
+                          <span className="result-title">Category: {g}</span>
+                          <span className="result-meta">Browse all {g} animations</span>
+                        </div>
+                      </div>
                     ))}
                   </div>
                 )}
@@ -311,11 +332,11 @@ const Layout = ({ children }) => {
                           setIsMenuOpen(false);
                         }}
                       >
-                        <img src={c.logo} alt="" className="result-thumb" />
+                        <img src={c.logo} alt="" className="result-thumb" onError={(e) => { e.target.style.display = 'none'; }} />
                         <div className="result-info">
                           <span className="result-title">{c.name}</span>
                           <span className="result-meta">
-                            {c.tagline || "Original Broadcast Network"}
+                            {c.tagline || c.type || "Broadcast Network"}
                           </span>
                         </div>
                       </Link>
@@ -325,7 +346,7 @@ const Layout = ({ children }) => {
 
                 {filteredShows.length > 0 && (
                   <div className="search-section">
-                    <div className="search-section-label">Shows</div>
+                    <div className="search-section-label">Shows & Episodes</div>
                     {filteredShows.map((s) => (
                       <Link
                         to={`/player/${s.slug}`}
@@ -341,11 +362,12 @@ const Layout = ({ children }) => {
                           src={s.thumbnail}
                           alt=""
                           className="result-thumb"
+                          onError={(e) => { e.target.onerror = null; e.target.src = '/placeholder.png'; }}
                         />
                         <div className="result-info">
                           <span className="result-title">{s.title}</span>
                           <span className="result-meta">
-                            {s.era} • {s.category}
+                            {s.era} • {s.genre || s.category}
                           </span>
                         </div>
                       </Link>
@@ -360,39 +382,32 @@ const Layout = ({ children }) => {
             {/* Main Navigation */}
             <div className="mobile-nav-group">
               <Link
-                to="/dashboard"
+                to="/"
                 className="mobile-nav-link"
                 onClick={() => setIsMenuOpen(false)}
               >
                 <span className="mobile-nav-icon">🏠</span> Home
               </Link>
               <Link
-                to="/dashboard"
+                to="/"
                 className="mobile-nav-link"
                 onClick={() => setIsMenuOpen(false)}
               >
                 <span className="mobile-nav-icon">📺</span> Channels
               </Link>
               <Link
-                to="/characters"
+                to="/franchise/Doraemon"
                 className="mobile-nav-link"
                 onClick={() => setIsMenuOpen(false)}
               >
-                <span className="mobile-nav-icon">👾</span> Characters
+                <span className="mobile-nav-icon">📼</span> Series Hub
               </Link>
               <Link
-                to="/dashboard"
+                to="/"
                 className="mobile-nav-link"
                 onClick={() => setIsMenuOpen(false)}
               >
                 <span className="mobile-nav-icon">🔥</span> Trending
-              </Link>
-              <Link
-                to="/dashboard"
-                className="mobile-nav-link"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                <span className="mobile-nav-icon">✨</span> New Cartoons
               </Link>
             </div>
 
@@ -553,32 +568,32 @@ const Layout = ({ children }) => {
           <div className="desktop-nav-actions" style={{ display: "none" }}>
             <nav className="desktop-nav-links">
               <Link
-                to="/dashboard"
-                className={`nav-link ${location.pathname === '/dashboard' ? 'active' : ''}`}
+                to="/"
+                className={`nav-link ${location.pathname === '/' ? 'active' : ''}`}
                 onClick={() => setIsMenuOpen(false)}
               >
                 Home
               </Link>
               <Link
-                to="/dashboard"
+                to="/"
                 className={`nav-link ${location.pathname.includes('/player') ? 'active' : ''}`}
                 onClick={() => setIsMenuOpen(false)}
               >
                 Shows
               </Link>
               <Link
-                to="/dashboard"
+                to="/"
                 className={`nav-link ${location.pathname.includes('/channel') ? 'active' : ''}`}
                 onClick={() => setIsMenuOpen(false)}
               >
                 Channels
               </Link>
               <Link
-                to="/characters"
-                className={`nav-link ${location.pathname.includes('/character') ? 'active' : ''}`}
+                to="/franchise/Doraemon"
+                className={`nav-link ${location.pathname.includes('/franchise') ? 'active' : ''}`}
                 onClick={() => setIsMenuOpen(false)}
               >
-                Characters
+                Series Hub
               </Link>
             </nav>
             <div className="nav-controls">

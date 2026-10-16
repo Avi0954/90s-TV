@@ -1,7 +1,12 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useNostalgia } from '../context/NostalgiaContext';
 import './Intro.css';
+
+// Verified existing video assets
+const VERIFIED_INTRO_VIDEOS = [
+    '/videos/intro/Walkthrough.mp4'
+];
 
 const IntroPage = () => {
     const { completeIntro } = useNostalgia();
@@ -10,22 +15,13 @@ const IntroPage = () => {
 
     const [dontShowAgain, setDontShowAgain] = useState(false);
     const [isExiting, setIsExiting] = useState(false);
-    const [randomVideo, setRandomVideo] = useState('');
+    const [videoError, setVideoError] = useState(false);
 
-    useEffect(() => {
-        const videoList = [
-            '/videos/intro/Walkthrough.mp4',
-            '/videos/intro/static.mp4',
-            '/videos/intro/bumps.mp4',
-            '/videos/intro/vhs_abstract.mp4',
-            '/videos/intro/tv_bars.mp4',
-            '/videos/intro/classic_intro.mp4',
-            '/videos/intro/childhood_clips.mp4'
-        ];
-
-        const selected = videoList[Math.floor(Math.random() * videoList.length)];
-        setRandomVideo(selected);
-    }, []);
+    // Lazily initialize video path without synchronous setState in effect
+    const [randomVideo] = useState(() => {
+        const index = Math.floor(Math.random() * VERIFIED_INTRO_VIDEOS.length);
+        return VERIFIED_INTRO_VIDEOS[index];
+    });
 
     const handleEnter = () => {
         setIsExiting(true);
@@ -45,9 +41,9 @@ const IntroPage = () => {
 
     return (
         <div className={`intro-container hud-layout ${isExiting ? 'intro-exit' : 'intro-fade-in'}`}>
-            {/* Random Video Background */}
+            {/* Background Video or Retro Fallback */}
             <div className="video-background">
-                {randomVideo && (
+                {!videoError && randomVideo ? (
                     <video
                         key={randomVideo}
                         ref={videoRef}
@@ -56,10 +52,13 @@ const IntroPage = () => {
                         loop
                         playsInline
                         className="bg-video"
+                        onError={() => setVideoError(true)}
                     >
                         <source src={randomVideo} type="video/mp4" />
                         Your browser does not support the video tag.
                     </video>
+                ) : (
+                    <div className="video-fallback-crt" />
                 )}
                 <div className="video-overlay"></div>
             </div>

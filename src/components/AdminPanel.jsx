@@ -5,7 +5,7 @@ import './Admin.css';
 
 const AdminPanel = () => {
     const {
-        isAdmin, loginAdmin, logoutAdmin, adminToken
+        isAdmin, loginAdmin, logoutAdmin
     } = useNostalgia();
 
     const [activeTab, setActiveTab] = useState('collection'); // 'collection' or 'channels'
@@ -17,7 +17,7 @@ const AdminPanel = () => {
     const [banners, setBanners] = useState([]);
     const [showSearchQuery, setShowSearchQuery] = useState('');
     const [channelSearchQuery, setChannelSearchQuery] = useState('');
-    const [categories, setCategories] = useState([
+    const [genres] = useState([
         { id: 'classic', name: 'Classic' },
         { id: '90s', name: '90s' },
         { id: '2000s', name: '2000s' },
@@ -35,7 +35,7 @@ const AdminPanel = () => {
         _id: null,
         title: '',
         slug: '',
-        category: 'classic',
+        genre: 'classic',
         channel: '',
         era: '90s',
         thumbnail: '',
@@ -43,6 +43,9 @@ const AdminPanel = () => {
         description: '',
         franchise: '',
         category: 'episode',
+        season: 1,
+        episodeNumber: 1,
+        duration: '22m',
         isFeatured: false,
         isActive: true
     };
@@ -56,7 +59,8 @@ const AdminPanel = () => {
         description: '',
         logo: '',
         themeColor: '#ffffff',
-        accentColor: 'white',
+        accentColor: '#ffffff',
+        type: 'Cartoon',
         isActive: true
     };
     const [channelFormData, setChannelFormData] = useState(initialChannelForm);
@@ -75,14 +79,7 @@ const AdminPanel = () => {
     const [bannerFormData, setBannerFormData] = useState(initialBannerForm);
     const [isEditingBanner, setIsEditingBanner] = useState(false);
 
-    // Fetch data when admin is logged in
-    useEffect(() => {
-        if (isAdmin) {
-            refreshData();
-        }
-    }, [isAdmin, activeTab]);
-
-    const refreshData = async () => {
+    const refreshData = React.useCallback(async () => {
         setIsLoading(true);
         try {
             const [showsData, channelsData, bannersData] = await Promise.all([
@@ -95,13 +92,20 @@ const AdminPanel = () => {
             setBanners(bannersData);
         } catch (err) {
             console.error("Failed to fetch admin data:", err);
-            if (err.message.includes('401')) {
+            if (err.message && err.message.includes('401')) {
                 logoutAdmin();
             }
         } finally {
             setIsLoading(false);
         }
-    };
+    }, [logoutAdmin]);
+
+    // Fetch data when admin is logged in
+    useEffect(() => {
+        if (isAdmin) {
+            refreshData();
+        }
+    }, [isAdmin, activeTab, refreshData]);
 
     const handleLogin = async (e) => {
         e.preventDefault();
@@ -419,14 +423,14 @@ const AdminPanel = () => {
                             </div>
 
                             <div className="form-group">
-                                <label>CATEGORY / GENRE</label>
+                                <label>GENRE</label>
                                 <select
                                     className="form-select"
-                                    value={formData.category}
-                                    onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                                    value={formData.genre}
+                                    onChange={(e) => setFormData({ ...formData, genre: e.target.value })}
                                 >
-                                    {categories.map(cat => (
-                                        <option key={cat.id} value={cat.id}>{cat.name}</option>
+                                    {genres.map(g => (
+                                        <option key={g.id} value={g.id}>{g.name}</option>
                                     ))}
                                 </select>
                             </div>
@@ -453,6 +457,38 @@ const AdminPanel = () => {
                                         <option value="song">Song / Opening</option>
                                         <option value="special">Special</option>
                                     </select>
+                                </div>
+                            </div>
+
+                            <div className="form-row">
+                                <div className="form-group" style={{ flex: 1 }}>
+                                    <label>SEASON</label>
+                                    <input
+                                        type="number"
+                                        min="1"
+                                        className="form-input"
+                                        value={formData.season || 1}
+                                        onChange={(e) => setFormData({ ...formData, season: parseInt(e.target.value) || 1 })}
+                                    />
+                                </div>
+                                <div className="form-group" style={{ flex: 1 }}>
+                                    <label>EPISODE #</label>
+                                    <input
+                                        type="number"
+                                        min="1"
+                                        className="form-input"
+                                        value={formData.episodeNumber || 1}
+                                        onChange={(e) => setFormData({ ...formData, episodeNumber: parseInt(e.target.value) || 1 })}
+                                    />
+                                </div>
+                                <div className="form-group" style={{ flex: 1 }}>
+                                    <label>DURATION</label>
+                                    <input
+                                        className="form-input"
+                                        placeholder="e.g. 22m"
+                                        value={formData.duration || '22m'}
+                                        onChange={(e) => setFormData({ ...formData, duration: e.target.value })}
+                                    />
                                 </div>
                             </div>
 
@@ -606,6 +642,30 @@ const AdminPanel = () => {
                                     placeholder="e.g. animax"
                                     onChange={(e) => setChannelFormData({ ...channelFormData, slug: generateSlug(e.target.value) })}
                                 />
+                            </div>
+
+                            <div className="form-row">
+                                <div className="form-group half">
+                                    <label>CHANNEL TYPE</label>
+                                    <select
+                                        className="form-select"
+                                        value={channelFormData.type || 'Cartoon'}
+                                        onChange={(e) => setChannelFormData({ ...channelFormData, type: e.target.value })}
+                                    >
+                                        <option value="Cartoon">Cartoon Network / Animation</option>
+                                        <option value="IndianTV">Indian TV / Classic Doordarshan</option>
+                                    </select>
+                                </div>
+                                <div className="form-group half">
+                                    <label>ACCENT COLOR</label>
+                                    <input
+                                        type="text"
+                                        className="form-input"
+                                        placeholder="e.g. #ff0055"
+                                        value={channelFormData.accentColor || '#ffffff'}
+                                        onChange={(e) => setChannelFormData({ ...channelFormData, accentColor: e.target.value })}
+                                    />
+                                </div>
                             </div>
 
                             <div className="form-group">

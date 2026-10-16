@@ -481,3 +481,57 @@
 .error-icon {
     font-size: 4rem;
 }
+
+/* ================== CARD PROGRESS & ACTIONS ================== */
+.show-thumb-wrapper {
+    position: relative;
+    overflow: hidden;
+}
+
+.card-progress-track {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: rgba(0, 0, 0, 0.6);
+    overflow: hidden;
+    z-index: 2;
+}
+
+.card-progress-bar {
+    height: 100%;
+    background: var(--accent-color, #4a638b);
+    transition: width 0.3s ease;
+}
+
+.card-remove-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: rgba(0, 0, 0, 0.75);
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    width: 26px;
+    height: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 0.75rem;
+    opacity: 0;
+    transition: all 0.2s ease;
+    z-index: 5;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+}
+
+.show-card:hover .card-remove-btn,
+.show-card:focus-within .card-remove-btn {
+    opacity: 1;
+}
+
+.card-remove-btn:hover {
+    background: #ff4444;
+    transform: scale(1.15);
+}

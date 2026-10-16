@@ -26,12 +26,7 @@ const convertToEmbedUrl = (url) => {
     }
 
     // 2. Regular expression to extract the video ID from various YouTube URL formats
-    // Matches:
-    // - youtube.com/watch?v=ID
-    // - youtu.be/ID
-    // - youtube.com/v/ID
-    // - m.youtube.com/watch?v=ID
-    const regex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i;
+    const regex = /(?:youtube\.com\/(?:[^/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?/\s]{11})/i;
     const match = trimmedUrl.match(regex);
 
     if (match && match[1]) {

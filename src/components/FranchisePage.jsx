@@ -59,7 +59,14 @@ const FranchisePage = () => {
                             <div className="franchise-card-details">
                                 <h3 className="franchise-card-title">{show.title}</h3>
                                 <div className="franchise-card-meta">
-                                    <span className="franchise-card-tag">{show.category}</span>
+                                    {show.season && show.episodeNumber ? (
+                                        <span className="franchise-card-tag">S{show.season} E{show.episodeNumber}</span>
+                                    ) : (
+                                        <span className="franchise-card-tag">{show.category}</span>
+                                    )}
+                                    {show.duration && (
+                                        <span className="franchise-card-tag">{show.duration}</span>
+                                    )}
                                     {show.channel && (
                                         <span className="franchise-channel-tag">{show.channel.name}</span>
                                     )}
@@ -88,7 +95,7 @@ const FranchisePage = () => {
         return (
             <div className="franchise-page error">
                 <header className="franchise-nav">
-                    <Link to="/dashboard" className="back-link">← BACK TO HUB</Link>
+                    <Link to="/" className="back-link">← BACK TO HUB</Link>
                 </header>
                 <div className="error-message">
                     <span className="error-icon">📺</span>
@@ -104,7 +111,7 @@ const FranchisePage = () => {
             <header className="franchise-hero" style={{ '--hero-banner': `url(${data.banner || '/placeholder-banner.jpg'})` }}>
                 <div className="franchise-hero-overlay"></div>
                 <div className="franchise-hero-content">
-                    <Link to="/dashboard" className="back-link hero-back">← BACK TO HUB</Link>
+                    <Link to="/" className="back-link hero-back">← BACK TO HUB</Link>
                     <div className="franchise-branding">
                         <h1 className="franchise-main-title neon-text">{data.franchise}</h1>
                         <p className="franchise-desc">Complete Series Archives</p>

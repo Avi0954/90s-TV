@@ -3,29 +3,43 @@ const mongoose = require('mongoose');
 const channelSchema = new mongoose.Schema({
     name: {
         type: String,
-        required: true
+        required: [true, 'Channel name is required'],
+        trim: true
     },
     slug: {
         type: String,
-        required: true,
-        unique: true
+        required: [true, 'Channel slug is required'],
+        unique: true,
+        trim: true,
+        lowercase: true
     },
     description: {
-        type: String
+        type: String,
+        default: ''
     },
     logo: {
-        type: String
+        type: String,
+        default: ''
     },
     themeColor: {
-        type: String
+        type: String,
+        default: '#ffffff'
     },
     accentColor: {
-        type: String
+        type: String,
+        default: '#ffffff'
     },
     type: {
         type: String,
-        enum: ['Cartoon', 'IndianTV'],
-        default: 'Cartoon'
+        enum: ['Cartoon', 'IndianTV', 'Main', 'Optional'],
+        default: 'Cartoon',
+        set: (val) => {
+            if (!val) return 'Cartoon';
+            const normalized = String(val).trim();
+            if (normalized.toLowerCase() === 'main') return 'Cartoon';
+            if (normalized.toLowerCase() === 'optional') return 'IndianTV';
+            return normalized;
+        }
     },
     isActive: {
         type: Boolean,
@@ -36,5 +50,8 @@ const channelSchema = new mongoose.Schema({
         default: Date.now
     }
 });
+
+channelSchema.index({ isActive: 1, name: 1 });
+channelSchema.index({ type: 1, isActive: 1 });
 
 module.exports = mongoose.model('Channel', channelSchema);

@@ -1,32 +1,58 @@
 const mongoose = require('mongoose');
-const { convertToEmbedUrl } = require('../utils/youtubeHelper');
 
 const showSchema = new mongoose.Schema({
     title: {
         type: String,
-        required: true
+        required: [true, 'Show title is required'],
+        trim: true
     },
     slug: {
         type: String,
-        required: true,
-        unique: true
+        required: [true, 'Show slug is required'],
+        unique: true,
+        trim: true,
+        lowercase: true
     },
     thumbnail: {
-        type: String
+        type: String,
+        default: ''
     },
     era: {
-        type: String
+        type: String,
+        default: '90s'
+    },
+    genre: {
+        type: String,
+        default: ''
+    },
+    characters: {
+        type: [String],
+        default: []
+    },
+    season: {
+        type: Number,
+        default: 1
+    },
+    episodeNumber: {
+        type: Number,
+        default: 1
+    },
+    duration: {
+        type: String,
+        default: '22m'
     },
     channel: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Channel',
-        required: true
+        required: [true, 'Channel reference is required']
     },
     description: {
-        type: String
+        type: String,
+        default: ''
     },
     videoUrl: {
-        type: String
+        type: String,
+        default: ''
     },
     franchise: {
         type: String,
@@ -51,7 +77,12 @@ const showSchema = new mongoose.Schema({
     }
 });
 
-// Hooks removed
+// Indexes for performance optimization on frequent queries
+showSchema.index({ channel: 1, isActive: 1 });
+showSchema.index({ franchise: 1, isActive: 1 });
+showSchema.index({ franchise: 1, season: 1, episodeNumber: 1 });
+showSchema.index({ isFeatured: 1, isActive: 1 });
+showSchema.index({ category: 1, isActive: 1 });
+showSchema.index({ genre: 1, isActive: 1 });
 
 module.exports = mongoose.model('Show', showSchema);
-

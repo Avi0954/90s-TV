@@ -1,10 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import * as api from '../services/api';
+import * as storage from '../services/storageService';
+import { useNostalgia } from '../context/NostalgiaContext';
 import './Dashboard.css';
 import { DashboardSkeleton } from './Skeletons';
 
-const ContentRow = ({ title, subtitle, items, isChannel = false, focusedIndex, startIndex }) => {
+const ContentRow = ({
+    title,
+    subtitle,
+    items,
+    isChannel = false,
+    showProgress = false,
+    onRemove = null,
+    focusedIndex,
+    startIndex
+}) => {
     if (!items || items.length === 0) return null;
 
     return (
@@ -22,13 +33,18 @@ const ContentRow = ({ title, subtitle, items, isChannel = false, focusedIndex, s
                         return (
                             <Link
                                 to={`/channel/${item.slug}`}
-                                key={item._id}
+                                key={item._id || item.slug}
                                 id={`card-${globalIndex}`}
                                 className={`channel-card ${isFocused ? 'keyboard-focused' : ''}`}
                                 style={{ '--accent-color': item.themeColor || 'var(--accent-color)' }}
                             >
                                 <div className="channel-logo-wrapper">
-                                    <img src={item.logo} alt={item.name} className="channel-logo" onError={(e) => { e.target.style.display = 'none'; }} />
+                                    <img
+                                        src={item.logo}
+                                        alt={item.name}
+                                        className="channel-logo"
+                                        onError={(e) => { e.target.style.display = 'none'; }}
+                                    />
                                 </div>
                                 <h3 className="channel-name">{item.name}</h3>
                             </Link>
@@ -38,16 +54,46 @@ const ContentRow = ({ title, subtitle, items, isChannel = false, focusedIndex, s
                     return (
                         <Link
                             to={`/player/${item.slug}`}
-                            key={item._id}
+                            key={item._id || item.slug}
                             id={`card-${globalIndex}`}
                             className={`show-card ${isFocused ? 'keyboard-focused' : ''}`}
                         >
                             <div className="show-thumb-wrapper">
-                                <img src={item.thumbnail} alt={item.title} className="show-thumb" />
+                                <img
+                                    src={item.thumbnail}
+                                    alt={item.title}
+                                    className="show-thumb"
+                                    onError={(e) => { e.target.onerror = null; e.target.src = '/placeholder.png'; }}
+                                />
+                                {showProgress && item.progressPercent > 0 && (
+                                    <div className="card-progress-track">
+                                        <div
+                                            className="card-progress-bar"
+                                            style={{ width: `${Math.min(100, Math.max(5, item.progressPercent))}%` }}
+                                        />
+                                    </div>
+                                )}
+                                {onRemove && (
+                                    <button
+                                        type="button"
+                                        className="card-remove-btn"
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            e.stopPropagation();
+                                            onRemove(item.slug);
+                                        }}
+                                        title="Remove from list"
+                                        aria-label={`Remove ${item.title}`}
+                                    >
+                                        ✕
+                                    </button>
+                                )}
                             </div>
                             <div className="show-info">
                                 <h3 className="show-title">{item.title}</h3>
-                                <span className="show-meta">{item.era} • {item.channel?.name || 'Cartoon'}</span>
+                                <span className="show-meta">
+                                    {item.era} • {item.channel?.name || item.genre || 'Cartoon'}
+                                </span>
                             </div>
                         </Link>
                     );
@@ -59,17 +105,23 @@ const ContentRow = ({ title, subtitle, items, isChannel = false, focusedIndex, s
 
 const Dashboard = () => {
     const navigate = useNavigate();
+    const { watchlist, toggleWatchlist } = useNostalgia();
+
     const [channels, setChannels] = useState({ cartoons: [], indianTV: [] });
     const [featuredCartoon, setFeaturedCartoon] = useState(null);
     const [fetchedBanners, setFetchedBanners] = useState([]);
     const [currentBannerIndex, setCurrentBannerIndex] = useState(0);
     const [isHeroHovered, setIsHeroHovered] = useState(false);
+
+    // Dynamic user sections
+    const [continueWatching, setContinueWatching] = useState([]);
+    const [watchlistShows, setWatchlistShows] = useState([]);
     const [recentlyWatched, setRecentlyWatched] = useState([]);
+
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [searchQuery, setSearchQuery] = useState('');
-    const [allShows, setAllShows] = useState([]);
     const [focusedIndex, setFocusedIndex] = useState(-1);
+
     const [trendingShows, setTrendingShows] = useState([]);
     const [ninetiesClassics, setNinetiesClassics] = useState([]);
     const [thousandsCartoons, setThousandsCartoons] = useState([]);
@@ -99,7 +151,6 @@ const Dashboard = () => {
                 });
 
                 setChannels({ cartoons: sortedCartoons, indianTV: indianTVList });
-                setAllShows(allShowsData);
 
                 const shuffle = (array) => [...array].sort(() => 0.5 - Math.random());
                 setTrendingShows(shuffle(allShowsData).slice(0, 10));
@@ -117,13 +168,38 @@ const Dashboard = () => {
                     setFetchedBanners(bannersArray);
                 }
 
-                const watchedSlugs = JSON.parse(localStorage.getItem('recentlyWatchedShows') || localStorage.getItem('recentlyWatchedCartoons') || '[]');
-                if (watchedSlugs.length > 0) {
-                    const watchedShows = await api.getShowsBySlugs(watchedSlugs);
-                    const orderedWatched = watchedSlugs
-                        .map(slug => watchedShows.find(s => s.slug === slug))
+                // 1. Process Continue Watching (Progress between 2% and 95%)
+                const history = storage.getWatchHistory();
+                const inProgressHistory = history.filter(h => h.progressPercent >= 2 && h.progressPercent < 95);
+                if (inProgressHistory.length > 0) {
+                    const inProgressSlugs = inProgressHistory.map(h => h.slug);
+                    const fetched = await api.getShowsBySlugs(inProgressSlugs);
+                    const enriched = inProgressHistory
+                        .map(h => {
+                            const found = fetched.find(s => s.slug === h.slug);
+                            if (!found) return null;
+                            return {
+                                ...found,
+                                progressPercent: h.progressPercent,
+                                progressSeconds: h.progressSeconds
+                            };
+                        })
                         .filter(Boolean);
-                    setRecentlyWatched(orderedWatched);
+                    setContinueWatching(enriched);
+                } else {
+                    setContinueWatching([]);
+                }
+
+                // 2. Process Recently Watched (All recently watched shows)
+                const recentSlugs = storage.getRecentlyWatchedSlugs();
+                if (recentSlugs.length > 0) {
+                    const fetchedRecent = await api.getShowsBySlugs(recentSlugs);
+                    const orderedRecent = recentSlugs
+                        .map(slug => fetchedRecent.find(s => s.slug === slug))
+                        .filter(Boolean);
+                    setRecentlyWatched(orderedRecent);
+                } else {
+                    setRecentlyWatched([]);
                 }
 
                 setError(null);
@@ -138,13 +214,33 @@ const Dashboard = () => {
         fetchData();
     }, []);
 
+    // Sync Watchlist shows dynamically when watchlist changes
     useEffect(() => {
-        if (searchQuery.length > 0 && allShows.length === 0) {
-            api.getAllShows().then(setAllShows);
-        }
-    }, [searchQuery, allShows.length]);
+        const fetchWatchlistShows = async () => {
+            if (!watchlist || watchlist.length === 0) {
+                setWatchlistShows([]);
+                return;
+            }
+            try {
+                const shows = await api.getShowsBySlugs(watchlist);
+                const ordered = watchlist
+                    .map(slug => shows.find(s => s.slug === slug))
+                    .filter(Boolean);
+                setWatchlistShows(ordered);
+            } catch (err) {
+                console.error("Error fetching watchlist shows:", err);
+            }
+        };
 
-    // Auto-rotation effect
+        fetchWatchlistShows();
+    }, [watchlist]);
+
+    const handleRemoveFromWatchlist = (slug) => {
+        if (toggleWatchlist) toggleWatchlist(slug);
+        setWatchlistShows(prev => prev.filter(s => s.slug !== slug));
+    };
+
+    // Auto-rotation effect for hero banners
     useEffect(() => {
         if (fetchedBanners.length <= 1 || isHeroHovered) return;
 
@@ -155,7 +251,7 @@ const Dashboard = () => {
         return () => clearInterval(interval);
     }, [fetchedBanners.length, isHeroHovered]);
 
-    // Preload next image for smooth transitions
+    // Preload next image for smooth banner transitions
     useEffect(() => {
         if (fetchedBanners.length > 1) {
             const nextIdx = (currentBannerIndex + 1) % fetchedBanners.length;
@@ -166,47 +262,24 @@ const Dashboard = () => {
 
     const activeBanner = fetchedBanners[currentBannerIndex] || null;
 
-    const handleRandom = () => {
-        const shows = isSearching ? filteredShows : allShows;
-        if (shows.length > 0) {
-            const randomIndex = Math.floor(Math.random() * shows.length);
-            navigate(`/player/${shows[randomIndex].slug}`);
-        } else if (featuredCartoon) {
-            navigate(`/player/${featuredCartoon.slug}`);
-        }
-    };
-
-    const matchedFranchises = searchQuery.length > 0
-        ? [...new Set(allShows.map(s => s.franchise).filter(Boolean))]
-            .filter(f => f.toLowerCase().includes(searchQuery.toLowerCase()))
-        : [];
-
-    const filteredShows = allShows.filter(s =>
-        s.title.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-
-    const isSearching = searchQuery.length > 0;
-
+    // Keyboard navigation across all active rows
     useEffect(() => {
         const handleKeyDown = (e) => {
-            if (document.activeElement.tagName === 'INPUT') return;
+            if (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA') return;
             if (isLoading) return;
 
-            // Simplified linear navigation for keyboard accessibility
-            const getFlattenedItems = () => {
-                if (isSearching) return filteredShows;
-                return [
-                    ...recentlyWatched,
-                    ...trendingShows,
-                    ...ninetiesClassics,
-                    ...thousandsCartoons,
-                    ...(channels.cartoons || []),
-                    ...(channels.indianTV || []),
-                    ...recommendedShows
-                ];
-            };
+            const items = [
+                ...continueWatching,
+                ...watchlistShows,
+                ...recentlyWatched,
+                ...trendingShows,
+                ...ninetiesClassics,
+                ...thousandsCartoons,
+                ...(channels.cartoons || []),
+                ...(channels.indianTV || []),
+                ...recommendedShows
+            ];
 
-            const items = getFlattenedItems();
             if (!items.length) return;
 
             let nextIndex = focusedIndex;
@@ -217,7 +290,7 @@ const Dashboard = () => {
             if (e.key === 'ArrowUp') nextIndex = Math.max(0, focusedIndex - 4);
 
             if (e.key === 'Enter') {
-                if (focusedIndex !== -1) {
+                if (focusedIndex !== -1 && items[focusedIndex]) {
                     const item = items[focusedIndex];
                     if (item.type === 'Cartoon' || item.type === 'IndianTV' || item.logo) {
                         navigate(`/channel/${item.slug}`);
@@ -236,7 +309,7 @@ const Dashboard = () => {
 
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [focusedIndex, isSearching, filteredShows, channels, recentlyWatched, isLoading, navigate]);
+    }, [focusedIndex, continueWatching, watchlistShows, recentlyWatched, trendingShows, ninetiesClassics, thousandsCartoons, channels, recommendedShows, isLoading, navigate]);
 
     if (error) {
         return (
@@ -250,29 +323,30 @@ const Dashboard = () => {
         );
     }
 
-    // Calculating start indices for the flattened array
-    const searchStartIndex = 0;
+    // Dynamic start offsets for keyboard navigation
+    let offset = 0;
+    const continueStartIndex = offset;
+    offset += continueWatching.length;
 
-    let currentIndexOffset = 0;
-    const recentStartIndex = currentIndexOffset;
-    currentIndexOffset += recentlyWatched.length;
+    const watchlistStartIndex = offset;
+    offset += watchlistShows.length;
 
-    const trendingStartIndex = currentIndexOffset;
-    currentIndexOffset += trendingShows.length;
+    const recentStartIndex = offset;
+    offset += recentlyWatched.length;
 
-    const ninetiesStartIndex = currentIndexOffset;
-    currentIndexOffset += ninetiesClassics.length;
+    const trendingStartIndex = offset;
+    offset += trendingShows.length;
 
-    const thousandsStartIndex = currentIndexOffset;
-    currentIndexOffset += thousandsCartoons.length;
+    const ninetiesStartIndex = offset;
+    offset += ninetiesClassics.length;
 
-    const cartoonStartIndex = currentIndexOffset;
-    currentIndexOffset += channels.cartoons.length;
+    const thousandsStartIndex = offset;
+    offset += thousandsCartoons.length;
 
-    const indianTvStartIndex = currentIndexOffset;
-    currentIndexOffset += channels.indianTV.length;
+    const channelStartIndex = offset;
+    offset += (channels.cartoons.length + channels.indianTV.length);
 
-    const recommendedStartIndex = currentIndexOffset;
+    const recommendedStartIndex = offset;
 
     return (
         <div className="dashboard-container">
@@ -283,7 +357,7 @@ const Dashboard = () => {
             ) : (
                 <>
                     {/* Hero Section */}
-                    {!isSearching && (activeBanner || featuredCartoon) && (
+                    {(activeBanner || featuredCartoon) && (
                         <section
                             className="hero-section hero-banner-fade-in"
                             key={activeBanner ? activeBanner._id : (featuredCartoon?.slug || 'hero')}
@@ -380,132 +454,86 @@ const Dashboard = () => {
                                     </button>
                                 </>
                             )}
-
-                            <style>{`
-                                @keyframes fadeIn {
-                                    from { opacity: 0; }
-                                    to { opacity: 1; }
-                                }
-                                .hero-nav-dots button:hover {
-                                    background: rgba(255, 255, 255, 0.9) !important;
-                                    transform: scale(1.2);
-                                }
-                                .hero-arrow-btn {
-                                    position: absolute;
-                                    top: 50%;
-                                    transform: translateY(-50%);
-                                    background: rgba(0, 0, 0, 0.4);
-                                    color: white;
-                                    border: none;
-                                    width: 48px;
-                                    height: 48px;
-                                    border-radius: 50%;
-                                    display: flex;
-                                    align-items: center;
-                                    justify-content: center;
-                                    cursor: pointer;
-                                    z-index: 3;
-                                    transition: all 0.3s ease;
-                                    opacity: 0;
-                                    backdrop-filter: blur(4px);
-                                }
-                                .hero-section:hover .hero-arrow-btn {
-                                    opacity: 1;
-                                }
-                                .hero-arrow-btn:hover {
-                                    background: rgba(0, 0, 0, 0.8) !important;
-                                    transform: translateY(-50%) scale(1.1);
-                                }
-                                .hero-arrow-btn.prev {
-                                    left: 20px;
-                                }
-                                .hero-arrow-btn.next {
-                                    right: 20px;
-                                }
-                                .hero-arrow-btn svg {
-                                    width: 24px;
-                                    height: 24px;
-                                }
-                            `}</style>
                         </section>
                     )}
 
                     <div className="dashboard-content">
-                        {isSearching ? (
-                            <div className="search-results-section">
-                                {matchedFranchises.length > 0 && (
-                                    <div className="franchise-results-section" style={{ marginBottom: '3rem' }}>
-                                        <h2 className="row-title">Series Hubs</h2>
-                                        <div className="category-grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))' }}>
-                                            {matchedFranchises.map((fName, idx) => (
-                                                <Link to={`/franchise/${fName}`} key={idx} style={{ textDecoration: 'none' }}>
-                                                    <div className="franchise-result-card">
-                                                        <div className="franchise-result-icon">🎞️</div>
-                                                        <div className="franchise-result-info">
-                                                            <h3 className="franchise-result-name">{fName}</h3>
-                                                            <span className="franchise-result-link">Enter Series Hub →</span>
-                                                        </div>
-                                                    </div>
-                                                </Link>
-                                            ))}
-                                        </div>
-                                    </div>
-                                )}
-
-                                <ContentRow
-                                    title={`Found ${filteredShows.length} results for "${searchQuery}"`}
-                                    items={filteredShows}
-                                    focusedIndex={focusedIndex}
-                                    startIndex={searchStartIndex}
-                                />
-                            </div>
-                        ) : (
-                            <>
-                                <ContentRow
-                                    title="Continue Watching"
-                                    items={recentlyWatched}
-                                    focusedIndex={focusedIndex}
-                                    startIndex={recentStartIndex}
-                                />
-
-                                <ContentRow
-                                    title="Trending Now"
-                                    items={trendingShows}
-                                    focusedIndex={focusedIndex}
-                                    startIndex={trendingStartIndex}
-                                />
-
-                                <ContentRow
-                                    title="90s Classics"
-                                    items={ninetiesClassics}
-                                    focusedIndex={focusedIndex}
-                                    startIndex={ninetiesStartIndex}
-                                />
-
-                                <ContentRow
-                                    title="2000s Cartoons"
-                                    items={thousandsCartoons}
-                                    focusedIndex={focusedIndex}
-                                    startIndex={thousandsStartIndex}
-                                />
-
-                                <ContentRow
-                                    title="Channels"
-                                    subtitle="Relive your favorite cartoon networks"
-                                    items={[...channels.cartoons, ...channels.indianTV]}
-                                    isChannel={true}
-                                    focusedIndex={focusedIndex}
-                                    startIndex={cartoonStartIndex}
-                                />
-
-                                <ContentRow
-                                    title="Recommended For You"
-                                    items={recommendedShows}
-                                    focusedIndex={focusedIndex}
-                                    startIndex={recommendedStartIndex}
-                                />
-                            </>
+                        {/* Continue Watching Section */}
+                        {continueWatching.length > 0 && (
+                            <ContentRow
+                                title="Continue Watching"
+                                subtitle="Pick up where you left off"
+                                items={continueWatching}
+                                showProgress={true}
+                                focusedIndex={focusedIndex}
+                                startIndex={continueStartIndex}
+                            />
                         )}
+
+                        {/* My Watchlist Section */}
+                        {watchlistShows.length > 0 && (
+                            <ContentRow
+                                title="My Watchlist"
+                                subtitle="Shows saved for later"
+                                items={watchlistShows}
+                                onRemove={handleRemoveFromWatchlist}
+                                focusedIndex={focusedIndex}
+                                startIndex={watchlistStartIndex}
+                            />
+                        )}
+
+                        {/* Recently Watched Section */}
+                        {recentlyWatched.length > 0 && (
+                            <ContentRow
+                                title="Recently Watched"
+                                subtitle="Your recent broadcasts"
+                                items={recentlyWatched}
+                                focusedIndex={focusedIndex}
+                                startIndex={recentStartIndex}
+                            />
+                        )}
+
+                        {/* Trending Now */}
+                        <ContentRow
+                            title="Trending Now"
+                            items={trendingShows}
+                            focusedIndex={focusedIndex}
+                            startIndex={trendingStartIndex}
+                        />
+
+                        {/* 90s Classics */}
+                        <ContentRow
+                            title="90s Classics"
+                            items={ninetiesClassics}
+                            focusedIndex={focusedIndex}
+                            startIndex={ninetiesStartIndex}
+                        />
+
+                        {/* 2000s Cartoons */}
+                        <ContentRow
+                            title="2000s Cartoons"
+                            items={thousandsCartoons}
+                            focusedIndex={focusedIndex}
+                            startIndex={thousandsStartIndex}
+                        />
+
+                        {/* Channels */}
+                        <ContentRow
+                            title="Channels"
+                            subtitle="Relive your favorite cartoon networks"
+                            items={[...channels.cartoons, ...channels.indianTV]}
+                            isChannel={true}
+                            focusedIndex={focusedIndex}
+                            startIndex={channelStartIndex}
+                        />
+
+                        {/* Recommended For You */}
+                        <ContentRow
+                            title="Recommended For You"
+                            items={recommendedShows}
+                            focusedIndex={focusedIndex}
+                            startIndex={recommendedStartIndex}
+                        />
                     </div>
                 </>
             )}

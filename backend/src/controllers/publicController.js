@@ -17,7 +17,8 @@ exports.getChannels = async (req, res) => {
 // @route   GET /api/channels/:slug
 exports.getChannelBySlug = async (req, res) => {
     try {
-        const channel = await Channel.findOne({ slug: req.params.slug, isActive: true });
+        const slug = String(req.params.slug || '').trim().toLowerCase();
+        const channel = await Channel.findOne({ slug, isActive: true });
         if (!channel) {
             return res.status(404).json({ message: 'Channel not found' });
         }
@@ -27,20 +28,59 @@ exports.getChannelBySlug = async (req, res) => {
     }
 };
 
-// @desc    Get all active shows
+// @desc    Get all active shows with search and filtering
 // @route   GET /api/shows
 exports.getShows = async (req, res) => {
     try {
-        const { slugs } = req.query;
+        const { slugs, channelSlug, search, genre, franchise, era, category } = req.query;
         let query = { isActive: true };
 
-        if (slugs) {
-            query.slug = { $in: slugs.split(',') };
+        if (slugs && typeof slugs === 'string') {
+            const slugList = slugs.split(',').map((s) => s.trim().toLowerCase()).filter(Boolean);
+            if (slugList.length > 0) {
+                query.slug = { $in: slugList };
+            }
         }
+
+        if (channelSlug && typeof channelSlug === 'string') {
+            const channel = await Channel.findOne({ slug: channelSlug.trim().toLowerCase() });
+            if (channel) {
+                query.channel = channel._id;
+            }
+        }
+
+        if (genre && typeof genre === 'string' && genre.trim()) {
+            query.genre = { $regex: new RegExp(`^${genre.trim()}$`, 'i') };
+        }
+
+        if (franchise && typeof franchise === 'string' && franchise.trim()) {
+            query.franchise = { $regex: new RegExp(`^${franchise.trim()}$`, 'i') };
+        }
+
+        if (era && typeof era === 'string' && era.trim()) {
+            query.era = era.trim();
+        }
+
+        if (category && typeof category === 'string' && category.trim()) {
+            query.category = category.trim().toLowerCase();
+        }
+
+        if (search && typeof search === 'string' && search.trim()) {
+            const escaped = search.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            const searchRegex = new RegExp(escaped, 'i');
+            query.$or = [
+                { title: searchRegex },
+                { franchise: searchRegex },
+                { genre: searchRegex },
+                { description: searchRegex }
+            ];
+        }
+
+        const sortOption = franchise ? { season: 1, episodeNumber: 1, createdAt: 1 } : { createdAt: -1 };
 
         const shows = await Show.find(query)
             .populate('channel', 'name logo slug themeColor accentColor')
-            .sort({ createdAt: -1 });
+            .sort(sortOption);
         res.json(shows);
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -51,7 +91,8 @@ exports.getShows = async (req, res) => {
 // @route   GET /api/shows/channel/:slug
 exports.getShowsByChannel = async (req, res) => {
     try {
-        const channel = await Channel.findOne({ slug: req.params.slug });
+        const slug = String(req.params.slug || '').trim().toLowerCase();
+        const channel = await Channel.findOne({ slug });
         if (!channel) {
             return res.status(404).json({ message: 'Channel not found' });
         }
@@ -70,7 +111,8 @@ exports.getShowsByChannel = async (req, res) => {
 // @route   GET /api/shows/:slug
 exports.getShowBySlug = async (req, res) => {
     try {
-        const show = await Show.findOne({ slug: req.params.slug, isActive: true })
+        const slug = String(req.params.slug || '').trim().toLowerCase();
+        const show = await Show.findOne({ slug, isActive: true })
             .populate('channel', 'name logo slug themeColor accentColor');
 
         if (!show) {
@@ -89,7 +131,7 @@ exports.getFeaturedShows = async (req, res) => {
         const shows = await Show.find({ isFeatured: true, isActive: true })
             .populate('channel', 'name logo slug themeColor accentColor')
             .sort({ createdAt: -1 })
-            .limit(5);
+            .limit(10);
         res.json(shows);
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -100,13 +142,13 @@ exports.getFeaturedShows = async (req, res) => {
 // @route   GET /api/franchise/:name
 exports.getFranchise = async (req, res) => {
     try {
-        const { name } = req.params;
-        const shows = await Show.find({ franchise: name, isActive: true })
+        const franchiseName = String(req.params.name || '').trim();
+        const shows = await Show.find({ franchise: franchiseName, isActive: true })
             .populate('channel', 'name logo slug themeColor accentColor')
             .sort({ createdAt: 1 });
 
         const result = {
-            franchise: name,
+            franchise: franchiseName,
             banner: shows.length > 0 ? shows[0].thumbnail : null,
             episodes: shows.filter(s => s.category === 'episode'),
             movies: shows.filter(s => s.category === 'movie'),
@@ -125,7 +167,7 @@ exports.getFranchise = async (req, res) => {
 exports.getActiveHeroBanner = async (req, res) => {
     try {
         const banners = await Banner.find({ isActive: true })
-            .populate('show', 'title slug description')
+            .populate('show', 'title slug description thumbnail')
             .sort({ order: 1 })
             .lean();
 

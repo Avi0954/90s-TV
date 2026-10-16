@@ -1,4 +1,5 @@
-require('dotenv').config();
+const path = require('path');
+require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
 const mongoose = require('mongoose');
 const Channel = require('./models/Channel');
 const Show = require('./models/Show');
@@ -7,6 +8,10 @@ const data = require('./data/cartoonsData.json');
 
 const seedDatabase = async () => {
     try {
+        if (!process.env.MONGO_URI) {
+            console.error('Error: MONGO_URI is missing in backend/.env');
+            process.exit(1);
+        }
         await mongoose.connect(process.env.MONGO_URI);
         console.log('Connected to MongoDB for seeding...');
 
@@ -49,7 +54,10 @@ const seedDatabase = async () => {
                     title: show.title,
                     thumbnail: show.thumbnail,
                     era: show.era,
-                    genre: show.genre,
+                    genre: show.genre || '',
+                    season: show.season || 1,
+                    episodeNumber: show.episodeNumber || 1,
+                    duration: show.duration || '22m',
                     videoUrl: convertToEmbedUrl(show.videoUrl),
                     description: show.description,
                     isFeatured: show.featured || false,
