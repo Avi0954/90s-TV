@@ -1,0 +1,325 @@
+/* Intro.css - Production Level Cinematic Nostalgia */
+
+:root {
+    --intro-bg: #050505;
+    --neon-blue: var(--retro-neon);
+    --neon-pink: var(--retro-pink);
+    --neon-glow: rgba(57, 255, 20, 0.4);
+}
+
+.intro-container {
+    height: 100vh;
+    width: 100vw;
+    background-color: var(--intro-bg);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    /* Align content to bottom */
+    align-items: flex-start;
+    /* Align content to left */
+    position: relative;
+    overflow: hidden;
+    color: #fff;
+    font-family: 'Inter', sans-serif;
+    padding: 4rem;
+    /* Safe area for HUD */
+}
+
+/* System HUD (Top-Right) */
+.system-hud {
+    position: absolute;
+    top: 2rem;
+    right: 2rem;
+    z-index: 100;
+    text-align: right;
+    font-family: var(--font-pixel);
+    font-size: 0.6rem;
+    color: var(--neon-blue);
+    opacity: 0.6;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    text-shadow: 0 0 5px var(--neon-blue);
+}
+
+.hud-stat {
+    letter-spacing: 1px;
+}
+
+/* Video Background */
+.video-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+}
+
+.bg-video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.7;
+    /* Final visual balance */
+    filter: contrast(1.1) brightness(0.9);
+}
+
+.video-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to top right, rgba(0, 0, 0, 0.9) 0%, transparent 60%);
+    z-index: 2;
+}
+
+/* VHS Overlays */
+.vhs-grain,
+.crt-scanlines {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+.vhs-grain {
+    background: url('https://raw.githubusercontent.com/AnestisG/film-grain-css/master/dist/film-grain.gif');
+    opacity: 0.04;
+    z-index: 5;
+}
+
+.crt-scanlines {
+    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.2) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+    background-size: 100% 3px, 3px 100%;
+    z-index: 6;
+}
+
+/* Content Area */
+.intro-content {
+    position: relative;
+    z-index: 10;
+    text-align: left;
+    max-width: 600px;
+    padding: 2rem;
+    animation: slideUp 1s ease-out;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(30px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.intro-header {
+    margin-bottom: 2.5rem;
+}
+
+.intro-title {
+    font-family: var(--font-pixel);
+    font-size: clamp(1.2rem, 5vw, 2.2rem);
+    color: var(--neon-blue);
+    margin-bottom: 0.8rem;
+    letter-spacing: 2px;
+    position: relative;
+    text-shadow: 0 0 15px var(--neon-blue);
+    animation: textFlicker 3s infinite;
+}
+
+.intro-title::before {
+    content: attr(data-text);
+    position: absolute;
+    left: -2px;
+    text-shadow: 2px 0 var(--neon-pink);
+    top: 0;
+    color: var(--neon-blue);
+    background: transparent;
+    overflow: hidden;
+    clip: rect(0, 900px, 0, 0);
+    animation: noise-anim-2 3s infinite linear alternate-reverse;
+}
+
+@keyframes textFlicker {
+
+    0%,
+    19%,
+    21%,
+    23%,
+    25%,
+    54%,
+    56%,
+    100% {
+        opacity: 1;
+        text-shadow: 0 0 20px var(--neon-blue), 0 0 40px var(--neon-blue);
+    }
+
+    20%,
+    22%,
+    24%,
+    55% {
+        opacity: 0.7;
+        text-shadow: none;
+    }
+}
+
+.intro-subtitle {
+    font-family: var(--font-pixel);
+    font-size: 0.7rem;
+    color: #fff;
+    opacity: 0.5;
+    letter-spacing: 1.5px;
+}
+
+/* Action Center */
+.intro-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1.5rem;
+}
+
+.btn-enter {
+    padding: 14px 45px;
+    background: var(--neon-blue);
+    border: none;
+    color: #000;
+    font-family: var(--font-pixel);
+    font-size: 0.85rem;
+    font-weight: bold;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 20px var(--neon-blue);
+}
+
+.btn-enter:hover {
+    transform: translateX(10px);
+    box-shadow: 0 0 40px var(--neon-blue);
+}
+
+.action-row-secondary {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+}
+
+.btn-skip {
+    background: none;
+    border: none;
+    color: #fff;
+    opacity: 0.3;
+    font-size: 0.7rem;
+    font-family: var(--font-pixel);
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: 0.3s;
+}
+
+.btn-skip:hover {
+    opacity: 0.8;
+    color: var(--neon-pink);
+}
+
+/* Integrated Preference Toggle */
+.hud-pref-toggle {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+    font-family: var(--font-pixel);
+    font-size: 0.55rem;
+    color: rgba(255, 255, 255, 0.4);
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.hud-pref-toggle:hover {
+    border-color: var(--neon-blue);
+    color: var(--neon-blue);
+}
+
+.hud-pref-toggle.active {
+    border-color: var(--neon-pink);
+    color: var(--neon-pink);
+    background: rgba(255, 0, 255, 0.05);
+}
+
+/* VHS Timestamp */
+.vhs-timestamp {
+    position: absolute;
+    bottom: 2rem;
+    right: 2rem;
+    /* Move to right to balance layout */
+    font-family: 'OCR A Extended', monospace;
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.4);
+    z-index: 10;
+    letter-spacing: 2px;
+}
+
+/* Global Transitions */
+.intro-fade-in {
+    animation: introFadeIn 1.5s ease-out;
+}
+
+.intro-exit {
+    animation: introFadeOut 0.8s forwards;
+}
+
+@keyframes introFadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes introFadeOut {
+    to {
+        opacity: 0;
+        transform: scale(1.1);
+        filter: blur(20px);
+    }
+}
+
+@media (max-width: 768px) {
+    .intro-container {
+        padding: 2rem;
+    }
+
+    .action-row-secondary {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .intro-title {
+        font-size: 1.8rem;
+    }
+
+    .intro-subtitle {
+        font-size: 0.6rem;
+    }
+
+    .btn-enter {
+        padding: 12px 30px;
+        font-size: 0.75rem;
+    }
+}

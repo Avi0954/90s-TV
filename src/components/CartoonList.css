@@ -1,0 +1,550 @@
+/* ============================================================== 
+ * PREMIUM EDITORIAL STREAMING PAGE (POLISHED)
+ * Exact 1280px center max-width, 80px gaps, 150ms transitions.
+ * Calm, balanced, minimal, structured, high-end.
+ * ============================================================== */
+
+.editorial-channel-page {
+    padding: 0;
+    min-height: 100vh;
+    background-color: #0f1115;
+    /* Pure warm dark theme */
+    color: rgba(255, 255, 255, 0.9);
+    scroll-behavior: smooth;
+    font-family: var(--font-modern, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif);
+    animation: editorial-fade-in 150ms ease-out forwards;
+}
+
+@keyframes editorial-fade-in {
+    0% {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.editorial-content-wrapper {
+    padding-top: 80px;
+    /* 80px spacing from header */
+    padding-bottom: 8rem;
+    position: relative;
+    z-index: 10;
+    max-width: 1280px;
+    /* Exact centered max-width */
+    margin: 0 auto;
+}
+
+/* --- 1. CLEAN CHANNEL HEADER --- */
+.editorial-hero-section {
+    position: relative;
+    height: 320px;
+    /* Max 320px constraint */
+    max-height: 320px;
+    display: flex;
+    align-items: center;
+    padding: 0 5%;
+    background-color: #0f1115;
+    /* No heavy backgrounds or gradients */
+}
+
+.editorial-hero-content {
+    position: relative;
+    z-index: 5;
+    width: 100%;
+    max-width: 1280px;
+    /* Exact centered max-width */
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    justify-content: center;
+}
+
+.editorial-back-link {
+    position: absolute;
+    top: 40px;
+    left: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: rgba(255, 255, 255, 0.5);
+    text-decoration: none;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    transition: all 150ms ease-out;
+    /* 150ms crisp anim */
+}
+
+.editorial-back-link:hover,
+.editorial-back-link:focus-visible {
+    color: #fff;
+    transform: translateX(-4px);
+    outline: none;
+}
+
+.editorial-hero-branding {
+    max-width: 800px;
+    display: flex;
+    flex-direction: column;
+    margin-top: 40px;
+}
+
+.editorial-hero-logo-wrapper {
+    width: 160px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    margin-bottom: 12px;
+}
+
+.editorial-hero-logo {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+/* Typography Hierarchy */
+.editorial-hero-title {
+    font-size: 3rem;
+    /* Clearly larger than section titles */
+    font-weight: 800;
+    margin: 0 0 12px 0;
+    letter-spacing: -0.5px;
+    /* Added slight letter-spacing logic */
+    line-height: 1.1;
+    color: #fff;
+}
+
+.editorial-hero-desc {
+    font-size: 1.15rem;
+    color: rgba(255, 255, 255, 0.7);
+    /* 70% opacity for elegance */
+    line-height: 1.4;
+    margin-bottom: 12px;
+    font-weight: 400;
+}
+
+.editorial-hero-stats {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.5);
+    /* Lower hierarchy */
+    font-weight: 500;
+    letter-spacing: 0.5px;
+}
+
+/* Thin subtle divider */
+.editorial-hero-divider {
+    position: absolute;
+    bottom: 0;
+    left: 5%;
+    right: 5%;
+    height: 1px;
+    background: rgba(255, 255, 255, 0.05);
+    /* Extremely subtle */
+}
+
+/* --- STRUCTURE SECTIONS --- */
+.editorial-section {
+    margin-bottom: 80px;
+    /* Exact 80px spacing between major sections */
+    padding: 0 5%;
+    width: 100%;
+}
+
+.editorial-section-header {
+    margin-bottom: 24px;
+    /* Exact 24px between title and content */
+}
+
+.editorial-section-header.centered {
+    text-align: center;
+    margin-bottom: 24px;
+}
+
+.editorial-section-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #fff;
+    margin: 0;
+    letter-spacing: -0.25px;
+    /* Slightly tighter for crispness */
+}
+
+/* --- 2. SPOTLIGHT CARD --- */
+.editorial-spotlight-card {
+    position: relative;
+    width: 100%;
+    height: 550px;
+    /* Wide cinematic */
+    background-color: #1c2230;
+    /* Matte surface */
+    border-radius: 16px;
+    /* 16px border radius */
+    overflow: hidden;
+    cursor: pointer;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    transition: transform 150ms ease-out, box-shadow 150ms ease-out;
+    /* Minimal 150ms animation */
+    /* Subtle 1px border */
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* 1.03 scale physics */
+.editorial-spotlight-card:hover,
+.editorial-spotlight-card:focus-visible {
+    transform: scale(1.03);
+    /* Exact user specification */
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.4);
+    outline: none;
+    z-index: 10;
+}
+
+.editorial-spotlight-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center 20%;
+    transition: transform 150ms ease-out;
+}
+
+.editorial-spotlight-card:hover .editorial-spotlight-bg {
+    transform: scale(1.03);
+}
+
+.editorial-spotlight-gradient {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 100%;
+    /* Soft bottom gradient overlay, exactly 60% max fade */
+    background: linear-gradient(to top, rgba(15, 17, 21, 0.6) 0%, rgba(15, 17, 21, 0.2) 40%, transparent 100%);
+    pointer-events: none;
+}
+
+.editorial-spotlight-content {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    padding: 64px;
+    max-width: 650px;
+    z-index: 5;
+    display: flex;
+    flex-direction: column;
+    pointer-events: none;
+    /* Let clicks pass to card */
+}
+
+.editorial-spotlight-title {
+    font-size: 3.5rem;
+    font-weight: 800;
+    line-height: 1.1;
+    margin: 0 0 16px 0;
+    color: #fff;
+    letter-spacing: -1px;
+}
+
+.editorial-spotlight-desc {
+    font-size: 1.15rem;
+    color: rgba(255, 255, 255, 0.7);
+    /* 70% opacity */
+    line-height: 1.5;
+    margin-bottom: 32px;
+}
+
+.editorial-primary-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    background-color: #fff;
+    color: #000;
+    border: none;
+    padding: 14px 28px;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    pointer-events: auto;
+    /* Clickable */
+    transition: all 150ms ease-out;
+    width: fit-content;
+}
+
+.editorial-primary-btn:hover {
+    background-color: rgba(255, 255, 255, 0.9);
+    transform: scale(1.03);
+    /* Exact user specification */
+}
+
+
+/* --- 3. ALL SHOWS GRID --- */
+.editorial-grid-all {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    /* 4-column layout (desktop) */
+    gap: 24px;
+    /* Consistent 24px grid gaps */
+}
+
+.editorial-grid-all .editorial-thumb-container {
+    padding-bottom: 66%;
+    /* Standard thumbnail ratio */
+}
+
+/* --- CARD STYLING & ANIMATION --- */
+.editorial-show-card {
+    display: flex;
+    flex-direction: column;
+    cursor: pointer;
+    text-decoration: none;
+    outline: none;
+    border-radius: 16px;
+    /* 16px border radius */
+}
+
+.editorial-thumb-container {
+    position: relative;
+    width: 100%;
+    background-color: #1c2230;
+    /* Matte surfaces */
+    border-radius: 16px;
+    overflow: hidden;
+    transition: transform 150ms ease-out, box-shadow 150ms ease-out;
+    /* 150ms minimal animation */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    /* Subtle borders exactly as requested */
+    will-change: transform, box-shadow;
+}
+
+.editorial-show-thumb {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 150ms ease-out;
+}
+
+/* Light gradient for clean legibility, max 60% fade */
+.editorial-card-gradient {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 60%;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0.2) 50%, transparent 100%);
+    z-index: 2;
+    transition: opacity 150ms ease-out;
+    pointer-events: none;
+}
+
+.editorial-hover-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.05);
+    /* Minimal overlay */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    z-index: 3;
+    transition: opacity 150ms ease-out;
+    pointer-events: none;
+}
+
+.editorial-play-btn {
+    width: 44px;
+    height: 44px;
+    background: rgba(20, 20, 20, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    transform: scale(0.9);
+    transition: transform 150ms ease-out, background 150ms ease-out;
+}
+
+.editorial-show-details {
+    position: absolute;
+    bottom: 0px;
+    left: 0px;
+    right: 0px;
+    padding: 1.5rem;
+    z-index: 5;
+    display: flex;
+    flex-direction: column;
+    pointer-events: none;
+}
+
+.editorial-show-title {
+    font-size: 1rem;
+    /* 16px */
+    font-weight: 700;
+    color: #fff;
+    margin: 0 0 4px 0;
+    line-height: 1.3;
+    display: -webkit-box;
+    line-clamp: 2;
+    -webkit-line-clamp: 2;
+    /* autoprefixer: ignore next */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+    word-break: break-word;
+    white-space: normal;
+    min-height: 2.6em;
+}
+
+.editorial-show-meta {
+    font-size: 0.8125rem;
+    /* 13px */
+    color: rgba(255, 255, 255, 0.7);
+    /* 70% opacity for elegance */
+    text-transform: capitalize;
+    font-weight: 500;
+}
+
+/* Card Hover Physics - 150ms Minimal, Exact 1.03 Scale */
+.editorial-show-card:hover .editorial-thumb-container,
+.editorial-show-card:focus-visible .editorial-thumb-container {
+    transform: scale(1.03);
+    /* Exact scale requested */
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+    /* Slight shadow increase */
+    z-index: 20;
+}
+
+.editorial-show-card:hover .editorial-show-thumb,
+.editorial-show-card:focus-visible .editorial-show-thumb {
+    transform: scale(1.03);
+}
+
+.editorial-show-card:hover .editorial-hover-overlay,
+.editorial-show-card:focus-visible .editorial-hover-overlay {
+    opacity: 1;
+}
+
+.editorial-show-card:hover .editorial-play-btn,
+.editorial-show-card:focus-visible .editorial-play-btn {
+    transform: scale(1);
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.editorial-show-card:focus-visible .editorial-thumb-container {
+    outline: 2px solid #fff;
+    outline-offset: 4px;
+}
+
+/* --- RESPONSIVE BREAKPOINTS --- */
+@media (max-width: 1024px) {
+    .editorial-grid-all {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 24px;
+    }
+
+    .editorial-show-title {
+        font-size: 0.9375rem;
+        /* 15px */
+    }
+
+    .editorial-show-meta {
+        font-size: 0.75rem;
+        /* 12px */
+    }
+}
+
+@media (max-width: 768px) {
+    .editorial-hero-section {
+        height: 280px;
+    }
+
+    .editorial-spotlight-card {
+        height: 400px;
+    }
+
+    .editorial-spotlight-content {
+        padding: 40px;
+    }
+
+    .editorial-spotlight-title {
+        font-size: 2.5rem;
+    }
+
+    .editorial-hero-title {
+        font-size: 2.2rem;
+    }
+
+    .editorial-grid-all {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .editorial-section-title {
+        font-size: 1.5rem;
+    }
+
+    .editorial-show-title {
+        font-size: 0.875rem;
+        /* 14px */
+        line-height: 1.3;
+    }
+
+    .editorial-show-meta {
+        font-size: 0.71875rem;
+        /* 11.5px */
+    }
+}
+
+@media (max-width: 480px) {
+    .editorial-hero-section {
+        height: 240px;
+    }
+
+    .editorial-spotlight-card {
+        height: 350px;
+    }
+
+    .editorial-spotlight-content {
+        padding: 24px;
+    }
+
+    .editorial-spotlight-title {
+        font-size: 1.8rem;
+    }
+
+    .editorial-spotlight-desc {
+        font-size: 1rem;
+        margin-bottom: 24px;
+    }
+
+    .editorial-hero-title {
+        font-size: 1.8rem;
+    }
+
+    .editorial-show-title {
+        font-size: 0.875rem;
+        /* 14px */
+    }
+
+    .editorial-show-meta {
+        font-size: 0.6875rem;
+        /* 11px */
+    }
+}

@@ -1,0 +1,306 @@
+.franchise-page {
+    min-height: 100vh;
+    background: var(--bg-color);
+    color: var(--text-color);
+    animation: fadeIn 0.8s ease-out;
+}
+
+/* Hero Section */
+.franchise-hero {
+    height: 60vh;
+    min-height: 400px;
+    position: relative;
+    background-image: var(--hero-banner);
+    background-size: cover;
+    background-position: center 20%;
+    display: flex;
+    align-items: flex-end;
+    overflow: hidden;
+}
+
+.franchise-hero-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to bottom,
+            rgba(0, 0, 0, 0.4) 0%,
+            rgba(var(--bg-rgb, 12, 12, 12), 0.7) 60%,
+            var(--bg-color) 100%);
+    z-index: 1;
+}
+
+.franchise-hero-content {
+    position: relative;
+    z-index: 2;
+    padding: 0 5% 4rem;
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.hero-back {
+    position: absolute;
+    top: -20vh;
+    left: 5%;
+}
+
+.franchise-main-title {
+    font-family: var(--font-pixel);
+    font-size: 5rem;
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 4px;
+    line-height: 1;
+}
+
+.neon-text {
+    color: #fff;
+    text-shadow:
+        0 0 7px #fff,
+        0 0 10px #fff,
+        0 0 21px var(--retro-neon),
+        0 0 42px var(--retro-neon),
+        0 0 82px var(--retro-neon);
+}
+
+.franchise-desc {
+    font-size: 1.2rem;
+    opacity: 0.6;
+    margin: 1rem 0;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.franchise-stats {
+    display: flex;
+    gap: 1.5rem;
+    font-size: 0.9rem;
+    opacity: 0.8;
+}
+
+/* Content Area */
+.franchise-content {
+    padding: 2rem 0;
+    margin-top: -2rem;
+    position: relative;
+    z-index: 3;
+}
+
+.franchise-row-section {
+    margin-bottom: 4rem;
+}
+
+.franchise-category-title {
+    font-family: var(--font-pixel);
+    font-size: 1.1rem;
+    margin-left: 5%;
+    margin-bottom: 1.5rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: rgba(255, 255, 255, 0.8);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.franchise-category-title::before {
+    content: '';
+    width: 4px;
+    height: 1.2rem;
+    background: var(--retro-neon);
+    display: inline-block;
+    box-shadow: 0 0 10px var(--retro-neon);
+}
+
+.franchise-horizontal-scroll {
+    display: flex;
+    gap: 1.5rem;
+    padding: 0 5% 1rem;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    -ms-overflow-style: none;
+    /* IE and Edge */
+    scrollbar-width: none;
+    /* Firefox */
+}
+
+.franchise-horizontal-scroll::-webkit-scrollbar {
+    display: none;
+    /* Chrome, Safari and Opera */
+}
+
+/* Show Card */
+.franchise-show-card {
+    flex: 0 0 320px;
+    background: var(--card-bg);
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.franchise-show-card:hover {
+    transform: scale(1.05);
+    border-color: var(--retro-neon);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.franchise-card-thumb-container {
+    height: 180px;
+    position: relative;
+    overflow: hidden;
+}
+
+.franchise-card-thumb {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.franchise-show-card:hover .franchise-card-thumb {
+    transform: scale(1.1);
+}
+
+.franchise-card-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.franchise-show-card:hover .franchise-card-overlay {
+    opacity: 1;
+}
+
+.franchise-play-icon {
+    font-size: 2.5rem;
+    color: #fff;
+}
+
+.franchise-card-era {
+    position: absolute;
+    top: 0.8rem;
+    right: 0.8rem;
+    background: rgba(0, 0, 0, 0.8);
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-family: var(--font-pixel);
+    font-size: 0.6rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.franchise-card-details {
+    padding: 1.2rem;
+}
+
+.franchise-card-title {
+    font-family: var(--font-pixel);
+    font-size: 1rem;
+    /* 16px */
+    margin: 0 0 0.8rem;
+    color: #fff;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    /* autoprefixer: ignore next */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    word-break: break-word;
+    white-space: normal;
+    line-height: 1.3;
+    height: 2.6em;
+}
+
+.franchise-card-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.franchise-card-tag {
+    font-size: 0.8125rem;
+    /* 13px */
+    text-transform: uppercase;
+    color: var(--retro-neon);
+    font-weight: 700;
+}
+
+.franchise-channel-tag {
+    font-size: 0.8125rem;
+    /* 13px */
+    opacity: 0.5;
+    text-transform: uppercase;
+}
+
+/* Skeletons */
+.franchise-hero-skeleton {
+    height: 60vh;
+    background: linear-gradient(90deg, #1a1a1a 25%, #2a2a2a 50%, #1a1a1a 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+    0% {
+        background-position: 200% 0;
+    }
+
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+/* Mobile and Tablet Responsive */
+@media (max-width: 1024px) {
+    .franchise-card-title {
+        font-size: 0.9375rem;
+        /* 15px */
+    }
+
+    .franchise-card-tag,
+    .franchise-channel-tag {
+        font-size: 0.75rem;
+        /* 12px */
+    }
+}
+
+@media (max-width: 768px) {
+    .franchise-main-title {
+        font-size: 2.5rem;
+    }
+
+    .franchise-hero {
+        height: 40vh;
+    }
+
+    .franchise-show-card {
+        flex: 0 0 240px;
+    }
+
+    .franchise-card-thumb-container {
+        height: 135px;
+    }
+
+    .franchise-card-title {
+        font-size: 0.875rem;
+        /* 14px */
+    }
+
+    .franchise-card-tag,
+    .franchise-channel-tag {
+        font-size: 0.71875rem;
+        /* 11.5px */
+    }
+}

@@ -1,0 +1,202 @@
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Outfit:wght@300;400;500;700&display=swap');
+
+:root {
+  /* Common Palette - Cozy Lounge */
+  --bg-color: #0f1115;
+  --card-bg: #1c2230;
+
+  /* Soft Accents */
+  --retro-pink: #d3869b;
+  --retro-yellow: #e9b143;
+  --retro-green: #8ec07c;
+  --retro-blue: #83a598;
+
+  --accent-color: var(--retro-pink);
+  /* Default accent */
+  --glow-color: transparent;
+  /* Disable generic glows */
+
+  /* Text */
+  --text-color: #fbf1c7;
+  --text-muted: #a89984;
+  --border-color: rgba(255, 255, 255, 0.08);
+  --nav-bg: rgba(15, 17, 21, 0.95);
+
+  /* Fonts */
+  --font-pixel: "Fredoka", sans-serif;
+  /* Repurposed from 8-bit to soft display font */
+  --font-modern: "Outfit", sans-serif;
+
+  /* Theme Transitions */
+  --transition-fast: 150ms ease-out;
+  --transition-base: 200ms ease-out;
+  --transition-slow: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  --theme-transition: var(--transition-base);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  background-color: var(--bg-color);
+  background-image: radial-gradient(circle at top center, #1a1e29 0%, #0f1115 100%);
+  color: var(--text-color);
+  font-family: var(--font-modern);
+  overflow-x: hidden;
+  min-height: 100vh;
+  transition: var(--theme-transition);
+}
+
+/* Premium Focus Visibility for Accessibility */
+:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--bg-color), 0 0 0 4px var(--text-muted);
+}
+
+/* Reduced Motion Preference */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-pixel);
+  letter-spacing: 0.5px;
+}
+
+.pixel-text {
+  font-family: var(--font-pixel);
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+/* --- OVERLAYS --- */
+/* Optional Retro Mode - very subtle */
+body.retro-mode .crt-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 200, 100, 0.02);
+  pointer-events: none;
+  z-index: 9999;
+}
+
+body.retro-mode .vhs-grain {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url("https://www.transparenttextures.com/patterns/carbon-fibre.png");
+  opacity: 0.02;
+  pointer-events: none;
+  z-index: 9998;
+}
+
+/* For elements hardcoded to use these */
+.crt-overlay,
+.scanline,
+.vhs-grain {
+  display: none;
+}
+
+/* --- ANIMATIONS --- */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pageFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.page-fade-enter {
+  animation: pageFadeIn var(--transition-base) forwards;
+}
+
+@keyframes pulse {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.7;
+  }
+}
+
+/* --- COMPONENTS --- */
+.retro-button {
+  display: inline-block;
+  padding: 10px 24px;
+  background-color: var(--accent-color);
+  color: #0f1115;
+  font-weight: 600;
+  border-radius: 50px;
+  border: none;
+  cursor: pointer;
+  transition: var(--theme-transition);
+  font-family: var(--font-modern);
+  font-size: 0.95rem;
+  text-decoration: none;
+}
+
+.retro-button:hover {
+  transform: scale(1.05);
+  filter: brightness(1.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.retro-button:active {
+  transform: scale(0.95);
+}
+
+.glass-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  transition: var(--theme-transition);
+}
+
+.text-glitch {
+  position: relative;
+  display: inline-block;
+}
+
+/* Ensure links behave */
+a {
+  text-decoration: none;
+  color: inherit;
+}

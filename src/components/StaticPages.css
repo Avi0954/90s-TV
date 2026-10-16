@@ -1,0 +1,105 @@
+/* StaticPages.css */
+
+.content-page {
+    max-width: 800px;
+    margin: 4rem auto;
+    padding: 2rem;
+    line-height: 1.8;
+}
+
+.content-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    padding: 3rem;
+    border-radius: 20px;
+    animation: fadeIn 0.8s ease-out;
+    transition: var(--theme-transition);
+}
+
+.content-title {
+    font-family: var(--font-pixel);
+    font-size: 2rem;
+    color: var(--accent-color);
+    margin-bottom: 2rem;
+    border-bottom: 2px solid var(--accent-color);
+    display: inline-block;
+    transition: var(--theme-transition);
+}
+
+.content-section {
+    margin-bottom: 2.5rem;
+}
+
+.content-section h2 {
+    font-family: var(--font-pixel);
+    font-size: 1rem;
+    color: var(--retro-pink);
+    margin-bottom: 1rem;
+}
+
+.content-section p {
+    color: var(--text-color);
+    opacity: 0.8;
+}
+
+.contact-button {
+    display: inline-block;
+    padding: 12px 24px;
+    background: var(--accent-color);
+    color: black;
+    text-decoration: none;
+    font-family: var(--font-pixel);
+    font-size: 0.8rem;
+    border-radius: 8px;
+    margin-top: 1rem;
+    transition: var(--theme-transition);
+}
+
+.contact-button:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--glow-color);
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (max-width: 600px) {
+    .content-page {
+        margin: 2rem auto;
+        padding: 1rem;
+    }
+
+    .content-card {
+        padding: 1.5rem;
+    }
+
+    .content-title {
+        font-size: 1.5rem;
+    }
+}
+
+/* Accessibility Focus States */
+a:focus,
+button:focus {
+    outline: 2px solid var(--retro-neon);
+    outline-offset: 4px;
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}

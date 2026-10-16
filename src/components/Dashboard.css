@@ -1,0 +1,483 @@
+/* Dashboard.css - Cozy Streaming Redesign */
+
+.dashboard-container {
+    padding: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: var(--bg-color);
+}
+
+.dashboard-content {
+    padding: 2rem 32px 4rem 32px;
+    margin-top: -60px;
+    /* Overlap hero slightly */
+    z-index: 10;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+    /* Standardized wide gap for premium feel */
+}
+
+
+
+/* ================== HERO SECTION ================== */
+.hero-section {
+    position: relative;
+    width: 100%;
+    height: 70vh;
+    min-height: 500px;
+    max-height: 800px;
+    background-size: cover;
+    background-position: center 20%;
+    background-repeat: no-repeat;
+    display: flex;
+    align-items: flex-end;
+    animation: fadeIn 1s ease-out;
+}
+
+.hero-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    /* Gradient matches the exact warm dark body color */
+    background: linear-gradient(0deg, #0f1115 0%, rgba(15, 17, 21, 0.8) 40%, transparent 100%);
+}
+
+.hero-content {
+    position: relative;
+    z-index: 2;
+    padding: 0 32px 100px 32px;
+    max-width: 520px;
+    display: flex;
+    flex-direction: column;
+}
+
+.hero-badge {
+    background: var(--accent-color);
+    color: var(--bg-color);
+    padding: 4px 12px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    width: fit-content;
+    display: inline-block;
+    margin-bottom: 12px;
+}
+
+.hero-title {
+    font-size: 4rem;
+    color: var(--text-color);
+    line-height: 1.1;
+    margin: 0;
+    margin-bottom: 16px;
+    font-family: var(--font-pixel);
+    font-weight: 600;
+    text-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+}
+
+.hero-desc {
+    font-size: 1.1rem;
+    color: var(--text-color);
+    opacity: 0.9;
+    line-height: 1.5;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    margin-bottom: 28px;
+}
+
+.hero-actions {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.hero-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 28px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: all 0.2s ease-out;
+    text-decoration: none;
+}
+
+.hero-button.primary {
+    background: var(--text-color);
+    color: var(--bg-color);
+    border: none;
+}
+
+.hero-button.primary:hover {
+    background: white;
+    transform: scale(1.05);
+    box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2);
+}
+
+/* ================== HERO RESPONSIVE ================== */
+@media (max-width: 1279px) {
+    .hero-content {
+        max-width: 420px;
+        padding: 0 32px 80px 32px;
+    }
+
+    .hero-title {
+        font-size: 3rem;
+    }
+}
+
+@media (max-width: 767px) {
+    .hero-section {
+        height: 60vh;
+        min-height: 400px;
+    }
+
+    .hero-content {
+        max-width: 90%;
+        padding: 0 20px 60px 20px;
+    }
+
+    .hero-title {
+        font-size: 2.2rem;
+        margin-bottom: 12px;
+    }
+
+    .hero-badge {
+        margin-bottom: 8px;
+    }
+
+    .hero-desc {
+        font-size: 1rem;
+        margin-bottom: 20px;
+    }
+
+    .hero-button {
+        padding: 10px 24px;
+        min-height: 44px;
+        font-size: 1rem;
+    }
+}
+
+.content-row-section {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    width: 100%;
+}
+
+.row-title {
+    font-family: var(--font-modern);
+    font-weight: 700;
+    font-size: 1.35rem;
+    color: var(--text-color);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    letter-spacing: 0.5px;
+}
+
+.row-container {
+    display: flex;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    gap: 16px;
+    padding: 16px 0;
+    scrollbar-width: none;
+    /* Firefox */
+    -ms-overflow-style: none;
+    /* IE/Edge */
+    scroll-behavior: smooth;
+    scroll-snap-type: x proximity;
+    -webkit-overflow-scrolling: touch;
+}
+
+.row-container::-webkit-scrollbar {
+    display: none;
+    /* Chrome/Safari */
+}
+
+/* ================== SHOW CARDS ================== */
+.show-card {
+    flex: 0 0 240px;
+    /* Base Desktop Width */
+    min-width: 240px;
+    background: var(--card-bg);
+    border-radius: 16px;
+    overflow: hidden;
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--border-color);
+    scroll-snap-align: start;
+}
+
+.show-card:hover,
+.show-card.keyboard-focused {
+    transform: scale(1.04);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4);
+    z-index: 2;
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.show-card.keyboard-focused {
+    border-color: var(--text-color);
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.15), 0 0 0 2px var(--text-color);
+}
+
+.show-thumb-wrapper {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    position: relative;
+    overflow: hidden;
+    background: #111;
+}
+
+.show-thumb {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+}
+
+/* Removed show-overlay and play-icon to keep design minimal */
+
+.show-info {
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.show-title {
+    font-size: 1rem;
+    /* 16px */
+    font-weight: 500;
+    color: var(--text-color);
+    margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    /* autoprefixer: ignore next */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: normal;
+    line-height: 1.3;
+    word-break: break-word;
+    min-height: 2.6em;
+    /* Fixed minimum height to ensure perfectly aligned cards */
+}
+
+.show-meta {
+    font-size: 0.8125rem;
+    /* 13px */
+    color: var(--text-muted);
+}
+
+
+
+/* ================== ROW HEADERS ================== */
+.row-header {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-bottom: 0;
+}
+
+.row-subtitle {
+    font-size: 0.95rem;
+    color: #9ba1ad;
+    margin: 0;
+}
+
+/* ================== CHANNEL CARDS ================== */
+.channel-card {
+    flex: 0 0 240px;
+    min-width: 240px;
+    min-height: 160px;
+    background: #1c2230;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
+    padding: 1.5rem;
+    cursor: pointer;
+    transition: all 0.2s ease-out;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    text-decoration: none;
+    position: relative;
+    overflow: hidden;
+    scroll-snap-align: start;
+}
+
+.channel-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    box-shadow: inset 0 0 40px var(--accent-color, rgba(255, 255, 255, 0.05));
+    opacity: 0.15;
+    pointer-events: none;
+    transition: opacity 0.2s ease-out;
+}
+
+.channel-card:hover,
+.channel-card.keyboard-focused {
+    transform: translateY(-6px);
+    background: #252d3e;
+    border-color: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+}
+
+.channel-card:hover::before,
+.channel-card.keyboard-focused::before {
+    opacity: 0.3;
+}
+
+.channel-card.keyboard-focused {
+    outline: 2px solid var(--accent-color, #fff);
+    outline-offset: 2px;
+}
+
+.channel-logo-wrapper {
+    width: 80px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
+}
+
+.channel-logo {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    transition: transform 0.2s ease;
+}
+
+.channel-card:hover .channel-logo {
+    transform: scale(1.08);
+}
+
+.channel-name {
+    font-family: var(--font-modern);
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.7);
+    text-align: center;
+    margin: 0;
+    transition: color 0.2s ease;
+    z-index: 1;
+}
+
+.channel-card:hover .channel-name {
+    color: #fff;
+}
+
+
+
+/* ================== RESPONSIVE SCROLL BREAKPOINTS ================== */
+
+@media (max-width: 1024px) {
+    /* Kept intentionally to wrap up desktop rules if needed */
+
+    .show-card,
+    .channel-card {
+        flex: 0 0 200px;
+        min-width: 200px;
+    }
+
+    .show-title {
+        font-size: 0.9375rem;
+        /* 15px */
+    }
+
+    .show-meta {
+        font-size: 0.75rem;
+        /* 12px */
+    }
+}
+
+@media (max-width: 768px) {
+    .dashboard-content {
+        padding: 2rem 16px 4rem 16px;
+        gap: 32px;
+    }
+
+    .show-card,
+    .channel-card {
+        flex: 0 0 160px;
+        min-width: 160px;
+    }
+
+    .row-container {
+        scroll-padding-left: 16px;
+        /* Ensure cards don't stick to edge when snapped */
+    }
+
+    .show-title {
+        font-size: 0.875rem;
+        /* 14px */
+        line-height: 1.3;
+    }
+
+    .show-meta {
+        font-size: 0.71875rem;
+        /* 11.5px */
+    }
+}
+
+/* ================== SEARCH OVERRIDES ================== */
+/* Clean up search label text */
+.search-results-section {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.search-results-label {
+    margin: 0;
+    font-family: var(--font-modern);
+    font-size: 1rem;
+    color: var(--text-muted);
+}
+
+/* Errors & Loaders */
+.error-state {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 1rem;
+}
+
+.error-box {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.error-icon {
+    font-size: 4rem;
+}
