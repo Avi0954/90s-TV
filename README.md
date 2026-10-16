@@ -12,10 +12,10 @@
 
 ---
 
-## 📑 Full Project Audit & Academic Project Report
+## 📑 Full Project Audit & Architecture Report
 
-- 📘 **[MONGODB_PROJECT_REPORT.md](file:///d:/90s%20Kid/MONGODB_PROJECT_REPORT.md)** — Comprehensive Academic & Technical Project Report (Title Page, ERD, MongoDB Schemas, Queries, Testing, & Methodology).
-- 🛠️ **[PROJECT_AUDIT_REPORT.md](file:///d:/90s%20Kid/PROJECT_AUDIT_REPORT.md)** — Full Engineering Audit, Security Verification, and YouTube Player API Roadmap.
+For the complete technical audit, security verification, video streaming architecture, and future YouTube IFrame Player API roadmap, see:
+👉 **[PROJECT_AUDIT_REPORT.md](file:///d:/90s%20Kid/PROJECT_AUDIT_REPORT.md)**
 
 ---
 
